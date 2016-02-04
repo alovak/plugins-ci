@@ -1,0 +1,9 @@
+wordpress:
+  build: .
+  links:
+    - db:mysql
+  ports:
+    - 8080:80
+
+db:
+  image: payfortstart/woocommerce-db:v1
