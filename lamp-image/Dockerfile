@@ -40,23 +40,13 @@ RUN sed -Ei 's/^(bind-address|log)/#&/' /etc/mysql/my.cnf \
 	&& echo 'skip-host-cache\nskip-name-resolve' | awk '{ print } $1 == "[mysqld]" && c == 0 { c = 1; system("cat") }' /etc/mysql/my.cnf > /tmp/my.cnf \
 	&& mv /tmp/my.cnf /etc/mysql/my.cnf
 
-# ENV WORDPRESS_VERSION 4.4.2
-# ENV WORDPRESS_SHA1 7444099fec298b599eb026e83227462bcdf312a6
-
-# upstream tarballs include ./wordpress/ so this gives us /usr/src/wordpress
-# RUN curl -o wordpress.tar.gz -SL https://wordpress.org/wordpress-${WORDPRESS_VERSION}.tar.gz \
-#	&& echo "$WORDPRESS_SHA1 *wordpress.tar.gz" | sha1sum -c - \
-#	&& tar -xzf wordpress.tar.gz -C /usr/src/ \
-#	&& rm wordpress.tar.gz \
-#	&& chown -R www-data:www-data /usr/src/wordpress
-
 #RUN /usr/sbin/mysqld & \
 #    sleep 10s &&\
 #    echo "GRANT ALL ON *.* TO admin@'%' IDENTIFIED BY 'changeme' WITH GRANT OPTION; FLUSH PRIVILEGES" | mysql
 
-COPY setupdb.sh /setupdb.sh
-RUN chmod 755 /setupdb.sh
-CMD ["/setupdb.sh"]
+COPY setupdb.sh /tmp/setupdb.sh
+RUN chmod 755 /tmp/setupdb.sh
+RUN /tmp/setupdb.sh
 
 COPY supervisord-apache.conf /etc/supervisor/conf.d/supervisord-apache2.conf
 COPY supervisord-mysql.conf /etc/supervisor/conf.d/supervisord-mysqld.conf
