@@ -16,6 +16,19 @@
 # users commonly want.
 #
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
+
+require 'capybara/rspec'
+require 'capybara/webkit'
+
+Capybara.default_driver = :webkit
+Capybara.javascript_driver = :webkit
+Capybara.app_host = 'http://192.168.33.72:8080'
+Capybara.run_server = false
+
+Capybara::Webkit.configure do |config|
+  config.allow_unknown_urls
+end
+
 RSpec.configure do |config|
   # rspec-expectations config goes here. You can use an alternate
   # assertion/expectation library such as wrong or the stdlib/minitest
@@ -93,4 +106,6 @@ RSpec.configure do |config|
   # as the one that triggered the failure.
   Kernel.srand config.seed
 =end
+  config.include Capybara::DSL
+  config.include Capybara::RSpecMatchers
 end

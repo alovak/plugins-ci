@@ -2,6 +2,8 @@ require 'spec_helper'
 
 describe 'something' do
   it 'should do' do
-    expect(true).to be(true)
+    visit "/product/demo"
+
+    expect(page).to have_content 'Demo Description'
   end
 end
