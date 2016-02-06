@@ -1,5 +1,7 @@
 FROM php:5.6-apache
 
+# payfortstart/lamp
+
 RUN a2enmod rewrite expires
 
 RUN apt-get update && apt-get -y install supervisor

@@ -1,4 +1,4 @@
-FROM app
+FROM payfortstart/lamp
 
 COPY .htaccess .htaccess
 

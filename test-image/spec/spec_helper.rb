@@ -19,10 +19,16 @@
 
 require 'capybara/rspec'
 require 'capybara/webkit'
+require 'capybara-select2'
+# require 'capybara/poltergeist'
 
-Capybara.default_driver = :webkit
-Capybara.javascript_driver = :webkit
-Capybara.app_host = 'http://192.168.33.72:8080'
+Capybara.app_host = 'http://app'
+
+# driver = :poltergeist
+driver = :webkit
+Capybara.default_driver = driver
+Capybara.javascript_driver = driver
+
 Capybara.run_server = false
 
 Capybara::Webkit.configure do |config|
@@ -108,4 +114,5 @@ RSpec.configure do |config|
 =end
   config.include Capybara::DSL
   config.include Capybara::RSpecMatchers
+  config.include Capybara::Select2
 end
