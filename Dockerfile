@@ -1,1 +1,0 @@
-FROM payfortstart/woocommerce-app
