@@ -3,26 +3,31 @@ require 'byebug'
 
 describe 'store customer' do
   before :all do
-    # visit "/wp-login.php"
-    # fill_in "Username", with: "demo"
-    # fill_in "Password", with: "demo"
-    # click_on "Log In"
-    # visit "/wp-admin/plugins.php"
-    # within("#payfort-start") do
-    #   click_on  "Activate"
-    # end
+    visit "/index.php/admin/"
+    fill_in "User Name", with: "demo"
+    fill_in "Password", with: "demo123"
+    click_on "Login"
+    within("#nav") { click_on "System" }
+    click_on "Configuration"
+    click_on "Payment Methods"
 
-    # # Configure
-    # visit "/wp-admin/admin.php?page=wc-settings&tab=checkout&section=wc_gateway_payfort"
-    # check "Enable/Disable"
-    # fill_in "Test Open Key", with: "test_open_k_c3f462a1e8277114c1da"
-    # fill_in "Test Secret Key", with: "test_sec_k_16dc38ad730d6ba806a92"
-    # fill_in "Live Open Key", with: "test_open_k_c3f462a1e8277114c1da"
-    # fill_in "Live Secret Key", with: "test_sec_k_16dc38ad730d6ba806a92"
-    # check "Test mode"
-    # click_on "Save changes"
+    # expand Start Payment Gateway Module"
+    find("#payment_gateway-head").click
 
-    # expect(page).to have_text("Your settings have been saved.")
+    # Configure
+    select "Yes", from: "Enable Test Mode"
+    select "Yes", from: "Enabled"
+    fill_in "Title", with: "Credit / Debit Card"
+    fill_in "Test Open Key", with: "test_open_k_c3f462a1e8277114c1da"
+    fill_in "Test Secret Key", with: "test_sec_k_16dc38ad730d6ba806a92"
+    fill_in "Live Open Key", with: "test_open_k_c3f462a1e8277114c1da"
+    fill_in "Live Secret Key", with: "test_sec_k_16dc38ad730d6ba806a92"
+    select "US Dollar", from: "Currency"
+    select "United Arab Emirates Dirham", from: "Currency"
+    select "Authorize and Capture", from: "Payment Action"
+    select "Complete", from: "New Order Status"
+    within("#content") { click_on "Save Config" }
+    # expect(page).to have_text("The configuration has been saved.")
   end
 
   it 'pays for order' do
@@ -37,37 +42,46 @@ describe 'store customer' do
     choose "Checkout as Guest"
     click_on "Continue"
 
-    byebug
-    a = 1
     fill_in "First Name", with: "Abdullah"
     fill_in "Last Name", with: "Ahmed"
     fill_in "Email Address", with: "start@payfort.com"
-    fill_in "Address", with: "In the middle of something"
     find("input[title='Street Address']").set "In the middle of something"
     fill_in "City", with: "Dubai"
     fill_in "Telephone", with: "+1-555-555-555"
     select "United Arab Emirates", from: "Country"
     fill_in "Zip", with: "12345"
     click_on "Continue"
+    sleep 1
 
-    # choose "Credit / Debit Card"
+    # shipping information
+    click_on "Continue"
+    sleep 1
 
-    # click_on "Place order"
+    choose "Credit / Debit Card"
 
-    # # within_frame("name#beautifulJs") do
-    # expect(page).to have_text("Secured with 128bit SSL encryption")
-    # expect(find("#email").value).to eq("start@payfort.com")
+    click_on "Enter Card Details"
 
-    # fill_inputmask('#number', '4242424242424242')
-    # fill_inputmask('#expiry', '11/22')
-    # fill_inputmask('#cvc', '123')
-    # # page.save_screenshot "screenshoot1.png", full: true
+    in_frame do
+      expect(page).to have_text("Secured with 128bit SSL encryption")
+      expect(find("#email").value).to eq("start@payfort.com")
 
-    # # click_on "Pay AED 15.00"
-    # find("button.btn-submit").click
-    # sleep 10
+      fill_inputmask('#number', '4242424242424242')
+      fill_inputmask('#expiry', '11/22')
+      fill_inputmask('#cvc', '123')
 
-    # expect(page).to have_content("Order Received")
+      click_on "Ok"
+      sleep 5
+    end
+    expect(page).to have_text("Pay with Card: xxxx-xxxx-xxxx-4242")
+
+    click_on "Continue"
+    sleep 1
+
+    click_on "Place Order"
+
+    sleep 2
+
+    expect(page).to have_content("YOUR ORDER HAS BEEN RECEIVED.")
   end
 
   def select2(value, attrs)
@@ -80,9 +94,19 @@ describe 'store customer' do
   end
 
   def fill_inputmask(location, value)
-    # value.split('').each { |c| find(location).native.send_keys(c) }
+    if (Capybara.default_driver == :selenium)
+      value.split('').each { |c| find(location).native.send_keys(c) }
+    else
+      script = "$('#{location}').val('#{value}');"
+      page.evaluate_script(script)
+    end
+  end
 
-    script = "$('#{location}').val('#{value}');"
-    page.evaluate_script(script)
+  def in_frame(&block)
+    if (Capybara.default_driver == :selenium)
+      within_frame("beautifulJs", &block)
+    else
+      yield
+    end
   end
 end
