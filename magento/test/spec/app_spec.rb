@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'byebug'
 
 describe 'store customer' do
   before :all do
