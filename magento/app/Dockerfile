@@ -12,3 +12,13 @@ RUN curl -o magento.tar.gz -SL https://github.com/OpenMage/magento-mirror/archiv
 
 RUN tar cf - --one-file-system -C /usr/src/magento-mirror-1.9.2.3 . | tar xf -
 
+COPY db.sql /tmp
+RUN /bin/bash -c "/usr/bin/mysqld_safe &" \
+  && sleep 10 \
+  && mysql -u root --password= demo < /tmp/db.sql \
+  && mysqladmin -uroot shutdown \
+  && rm /tmp/db.sql
+
+COPY magento-disable-alerts.xml app/etc/
+COPY local.xml app/etc/
+RUN chown www-data:www-data app/etc/*

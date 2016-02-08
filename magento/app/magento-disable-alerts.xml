@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <modules>
+        <MageBase_Custom>
+            <active>true</active>
+            <codePool>local</codePool>
+            <depends>
+                <Mage_Core />
+                <Mage_Cms />
+            </depends>
+        </MageBase_Custom>
+        <Mage_AdminNotification>
+                <active>false</active>
+        </Mage_AdminNotification>
+    </modules>
+</config>
