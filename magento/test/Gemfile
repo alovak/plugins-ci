@@ -5,3 +5,7 @@ gem 'rake'
 gem 'capybara'
 gem 'rspec'
 gem 'selenium-webdriver'
+
+group :debug do
+  gem 'byebug'
+end
