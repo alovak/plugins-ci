@@ -13,7 +13,6 @@ describe 'store customer' do
     # expand Start Payment Gateway Module"
     find("#payment_gateway-head").click
 
-    # Configure
     select "Yes", from: "Enable Test Mode"
     select "Yes", from: "Enabled"
     fill_in "Title", with: "Credit / Debit Card"
@@ -26,7 +25,7 @@ describe 'store customer' do
     select "Authorize and Capture", from: "Payment Action"
     select "Complete", from: "New Order Status"
     within("#content") { click_on "Save Config" }
-    # expect(page).to have_text("The configuration has been saved.")
+    expect(page).to have_text("The configuration has been saved.")
   end
 
   it 'pays for order' do
@@ -58,7 +57,7 @@ describe 'store customer' do
 
     choose "Credit / Debit Card"
 
-    click_on "Enter Card Details"
+    click_on "Continue"
 
     in_frame do
       expect(page).to have_text("Secured with 128bit SSL encryption")
@@ -71,10 +70,10 @@ describe 'store customer' do
       click_on "Ok"
       sleep 5
     end
-    expect(page).to have_text("Pay with Card: xxxx-xxxx-xxxx-4242")
+    # expect(page).to have_text("Pay with Card: xxxx-xxxx-xxxx-4242")
 
-    click_on "Continue"
-    sleep 1
+    # click_on "Continue"
+    # sleep 1
 
     click_on "Place Order"
 
