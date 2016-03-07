@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y \
       && rm -rf /var/lib/apt/lists/*
 
 RUN gem update --system
-RUN gem install bundler
+RUN gem install bundler --without debug
 
 ENV APP_HOME /myapp
 RUN mkdir $APP_HOME
