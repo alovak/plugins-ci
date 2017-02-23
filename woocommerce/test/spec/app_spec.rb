@@ -15,7 +15,9 @@ describe 'something' do
       click_on  "Activate"
     end
 
-    expect(page).to have_text('Plugin activated')
+    wait_until do
+      expect(page).to have_text('Plugin activated')
+    end
 
     # Configure
     visit "/wp-admin/admin.php?page=wc-settings&tab=checkout&section=wc_gateway_payfort"
