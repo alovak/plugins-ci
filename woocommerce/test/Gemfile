@@ -2,10 +2,10 @@
 source "https://rubygems.org"
 
 gem 'rake'
-gem 'capybara-webkit'
-gem 'capybara'
 gem 'rspec'
-# gem 'selenium-webdriver'
-# gem 'byebug'
+gem 'capybara'
 gem 'capybara-select2'
-# gem 'poltergeist'
+gem 'selenium-webdriver'
+group :debug do
+  gem 'byebug'
+end

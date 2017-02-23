@@ -17,23 +17,15 @@
 #
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 
+require 'capybara'
 require 'capybara/rspec'
-require 'capybara/webkit'
+require 'selenium-webdriver'
 require 'capybara-select2'
-# require 'capybara/poltergeist'
 
 Capybara.app_host = 'http://app'
 
-# driver = :poltergeist
-driver = :webkit
-Capybara.default_driver = driver
-Capybara.javascript_driver = driver
-
+Capybara.default_driver = :selenium
 Capybara.run_server = false
-
-Capybara::Webkit.configure do |config|
-  config.allow_unknown_urls
-end
 
 RSpec.configure do |config|
   # rspec-expectations config goes here. You can use an alternate
