@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'byebug'
 
 describe 'store customer' do
   before :all do
@@ -6,12 +7,17 @@ describe 'store customer' do
     fill_in "User Name", with: "demo"
     fill_in "Password", with: "demo123"
     click_on "Login"
-    within("#nav") { click_on "System" }
-    click_on "Configuration"
-    click_on "Payment Methods"
 
-    # expand Start Payment Gateway Module"
-    find("#payment_gateway-head").click
+    wait_until do
+      expect(page).to have_text("Dashboard")
+    end
+
+    # unfortunately I was not able to 'click' on
+    # System / Configuration
+    config_url = find("li a[href*='system_config/index']")['href']
+    visit config_url
+
+    click_on "Payment Methods"
 
     select "Yes", from: "Enable Test Mode"
     select "Yes", from: "Enabled"
@@ -20,12 +26,12 @@ describe 'store customer' do
     fill_in "Test Secret Key", with: "test_sec_k_16dc38ad730d6ba806a92"
     fill_in "Live Open Key", with: "test_open_k_c3f462a1e8277114c1da"
     fill_in "Live Secret Key", with: "test_sec_k_16dc38ad730d6ba806a92"
-    select "US Dollar", from: "Currency"
-    select "United Arab Emirates Dirham", from: "Currency"
     select "Authorize and Capture", from: "Payment Action"
-    select "Complete", from: "New Order Status"
     within("#content") { click_on "Save Config" }
-    expect(page).to have_text("The configuration has been saved.")
+
+    wait_until do
+      expect(page).to have_text("The configuration has been saved.")
+    end
   end
 
   it 'pays successfully for order' do
@@ -58,28 +64,34 @@ describe 'store customer' do
     choose "Credit / Debit Card"
 
     click_on "Continue"
+    sleep 1
+
+    click_on "Place Order"
+    sleep 2
+
+    wait_until do
+      expect(page).to have_text("PLEASE, WAIT WHILE WE PROCESS YOUR PAYMENT")
+    end
+
+    wait_until do
+      find('iframe[name=beautifulJs]')
+    end
 
     in_frame do
-      expect(page).to have_text("Secured with 128bit SSL encryption")
-      expect(find("#email").value).to eq("start@payfort.com")
+      wait_until do
+        expect(page).to have_text("Secure Payment Form")
+      end
 
       fill_inputmask('#number', '4242424242424242')
       fill_inputmask('#expiry', '11/22')
       fill_inputmask('#cvc', '123')
 
-      click_on "Ok"
-      sleep 5
+      click_on "Pay"
     end
-    # expect(page).to have_text("Pay with Card: xxxx-xxxx-xxxx-4242")
 
-    # click_on "Continue"
-    # sleep 1
-
-    click_on "Place Order"
-
-    sleep 2
-
-    expect(page).to have_content("YOUR ORDER HAS BEEN RECEIVED.")
+    wait_until do
+      expect(page).to have_content("YOUR ORDER HAS BEEN RECEIVED.")
+    end
   end
 
   it 'receives decline when charge declined' do
@@ -112,53 +124,30 @@ describe 'store customer' do
     choose "Credit / Debit Card"
 
     click_on "Continue"
+    sleep 1
+
+    click_on "Place Order"
+    sleep 2
+
+    wait_until do
+      expect(page).to have_text("PLEASE, WAIT WHILE WE PROCESS YOUR PAYMENT")
+    end
 
     in_frame do
-      expect(page).to have_text("Secured with 128bit SSL encryption")
-      expect(find("#email").value).to eq("start@payfort.com")
+      wait_until do
+        expect(page).to have_text("Secure Payment Form")
+      end
 
       fill_inputmask('#number', '4000000000000002')
       fill_inputmask('#expiry', '11/22')
       fill_inputmask('#cvc', '123')
 
-      click_on "Ok"
-      sleep 5
+      click_on "Pay"
     end
 
-    click_on "Place Order"
-
-
-    sleep 2
-    expect(page.driver.browser.switch_to.alert.text).to eq('Charge was declined. Please, contact you bank for more information or use a different card.')
-    page.driver.browser.switch_to.alert.accept
-
-    sleep 1
-
-    expect(page).to have_selector('li#opc-payment.active')
-
-    # second attempt
-    #
-    choose "Credit / Debit Card"
-
-    click_on "Continue"
-
-    in_frame do
-      expect(page).to have_text("Secured with 128bit SSL encryption")
-      expect(find("#email").value).to eq("start@payfort.com")
-
-      fill_inputmask('#number', '4242424242424242')
-      fill_inputmask('#expiry', '11/22')
-      fill_inputmask('#cvc', '123')
-
-      click_on "Ok"
-      sleep 5
+    wait_until do
+      expect(page).to have_content("Charge was declined. Please, contact you bank for more information or use a different card.")
     end
-
-    click_on "Place Order"
-
-    sleep 2
-
-    expect(page).to have_content("YOUR ORDER HAS BEEN RECEIVED.")
   end
 
   def select2(value, attrs)
@@ -181,9 +170,18 @@ describe 'store customer' do
 
   def in_frame(&block)
     if (Capybara.default_driver == :selenium)
-      within_frame("beautifulJs", &block)
+      within_frame(find('iframe[name=beautifulJs]'), &block)
     else
       yield
     end
+  end
+
+  def wait_until
+    attempts ||= 5
+    yield
+  rescue Exception
+    sleep 1
+    puts "retry..."
+    (attempts -= 1).zero? ? raise : retry
   end
 end

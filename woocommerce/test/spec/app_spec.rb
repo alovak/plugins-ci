@@ -6,7 +6,10 @@ describe 'something' do
     fill_in "Username", with: "demo"
     fill_in "Password", with: "demo"
     click_on "Log In"
-    expect(page).to have_text('Welcome to WordPress')
+
+    wait_until do
+      expect(page).to have_text('Welcome to WordPress')
+    end
 
     visit "/wp-admin/plugins.php"
     expect(page).to have_selector('h1', text: 'Plugins')

@@ -5,6 +5,7 @@ gem 'rake'
 gem 'capybara'
 gem 'rspec'
 gem 'selenium-webdriver'
+gem "webdrivers", "~> 2.3"
 
 group :debug do
   gem 'byebug'
